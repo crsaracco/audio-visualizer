@@ -10,7 +10,7 @@ const SAMPLE_RATE: f64 = 44100.0;
 
 /// "Run" the audio thread
 /// Probably want to run this in a separate thread and send samples over a channel.
-pub fn run(recv_audio_samples: chan::Receiver<(i16, i16)>) -> Result<(), pa::Error> {
+pub fn run(recv_audio_samples: chan::Receiver<(i16, i16)>, send_graph_samples: chan::Sender<(i16, i16)>) -> Result<(), pa::Error> {
     // Sleep a little so we don't underrun our audio buffer (probably not even needed but whatever):
     thread::sleep(time::Duration::new(0, 100_000));
 
@@ -41,18 +41,13 @@ pub fn run(recv_audio_samples: chan::Receiver<(i16, i16)>) -> Result<(), pa::Err
                     buffer[i]   = (pair.0 as f32)/32768.0;
                     buffer[i+1] = (pair.1 as f32)/32768.0;
                     i += 2;
+
+                    send_graph_samples.send(pair.clone());
                 }
                 None => {
                     // Something...
                 }
             };
-            /*
-            let sample = recv_audio.recv().unwrap();
-            send_points.send(sample.clone());
-            buffer[i]   = sample as f32;
-            buffer[i+1] = sample as f32;
-            i += 2;
-            */
         }
         pa::Continue
     };

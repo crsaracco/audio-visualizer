@@ -6,5 +6,9 @@ authors = ["Charles Saracco <crsaracco@gmail.com>"]
 [dependencies]
 chan = "*"
 hound = "*"
-piston_window = "0.70.0"
 portaudio = "*"
+
+piston = "0.35.0"
+piston2d-graphics = "0.24.0"
+pistoncore-glutin_window = "0.43.0"
+piston2d-opengl_graphics = "0.50.0"

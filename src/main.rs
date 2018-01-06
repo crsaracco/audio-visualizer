@@ -1,46 +1,54 @@
-// Extern crates:
+// Extern crates
 extern crate chan;
 extern crate hound;
-extern crate piston_window;
 extern crate portaudio;
+extern crate piston;
+extern crate graphics;
+extern crate glutin_window;
+extern crate opengl_graphics;
 
-// Crate uses:
+// Crate uses
 use std::thread;
 use chan::Receiver;
 
-// Our own modules:
+// Our own modules
 mod wav_reader;
 mod audio_player;
 mod audio_visualizer;
 
-// Consts:
+// Consts
 const FILENAME: &str = "Poldoore - That Game You're Playing.wav";
 const SAMPLE_RATE: usize = 44100;
+const DRAW_RATE: usize = SAMPLE_RATE / 60 * 2; // Samples per frame, for the visualizer (times two for a nice buffer)
 
 fn main() {
     // Create a channel so we can read the .wav in one thread, buffer up some samples,
-    // and play it in another thread:
+    // and play it in another thread
     let (send_audio_samples, recv_audio_samples) = chan::sync(SAMPLE_RATE);
 
-    // Collect all our threads so we can .join() later:
+    // Create a channel so that we can pass samples from the audio player to the audio visualizer,
+    // again in another thread
+    let (send_graph_samples, recv_graph_samples) = chan::sync(DRAW_RATE);
+
+    // Collect all our threads so we can .join() later
     let mut threads = vec![];
 
-    // Create the thread that reads our .wav file:
+    // Create the thread that reads our .wav file
     threads.push(thread::spawn(move || {
         wav_reader::read_samples(FILENAME, send_audio_samples);
     }));
 
-    // Create the thread that plays our audio:
+    // Create the thread that plays our audio
     threads.push(thread::spawn(move || {
-        audio_player::run(recv_audio_samples);
+        audio_player::run(recv_audio_samples, send_graph_samples);
     }));
 
     // Create the thread that visualizes our audio!
     threads.push(thread::spawn(move || {
-        audio_visualizer::audio_visualizer();
+        audio_visualizer::audio_visualizer(recv_graph_samples);
     }));
 
-    // Wait for all the threads to finish:
+    // Wait for all the threads to finish
     for thread in threads {
         let _ = thread.join();
     }
