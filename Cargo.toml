@@ -1,0 +1,10 @@
+[package]
+name = "audio-visualizer"
+version = "0.1.0"
+authors = ["Charles Saracco <crsaracco@gmail.com>"]
+
+[dependencies]
+chan = "*"
+hound = "*"
+piston_window = "0.70.0"
+portaudio = "*"
