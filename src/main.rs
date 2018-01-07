@@ -6,9 +6,11 @@ extern crate piston;
 extern crate graphics;
 extern crate glutin_window;
 extern crate opengl_graphics;
+extern crate rustfft;
 
 // Crate uses
 use std::thread;
+use std::env;
 use chan::Receiver;
 
 // Our own modules
@@ -17,11 +19,14 @@ mod audio_player;
 mod audio_visualizer;
 
 // Consts
-const FILENAME: &str = "Poldoore - That Game You're Playing.wav";
 const SAMPLE_RATE: usize = 44100;
 const DRAW_RATE: usize = SAMPLE_RATE / 60 * 2; // Samples per frame, for the visualizer (times two for a nice buffer)
 
 fn main() {
+    // Get command line arguments
+    let args: Vec<_> = env::args().collect();
+    let filename = args[1].clone();
+
     // Create a channel so we can read the .wav in one thread, buffer up some samples,
     // and play it in another thread
     let (send_audio_samples, recv_audio_samples) = chan::sync(SAMPLE_RATE);
@@ -35,7 +40,7 @@ fn main() {
 
     // Create the thread that reads our .wav file
     threads.push(thread::spawn(move || {
-        wav_reader::read_samples(FILENAME, send_audio_samples);
+        wav_reader::read_samples(&filename, send_audio_samples);
     }));
 
     // Create the thread that plays our audio
@@ -45,7 +50,7 @@ fn main() {
 
     // Create the thread that visualizes our audio!
     threads.push(thread::spawn(move || {
-        audio_visualizer::audio_visualizer(recv_graph_samples);
+        audio_visualizer::audio_visualizer(recv_graph_samples, args[2].parse().unwrap(), args[3].parse().unwrap());
     }));
 
     // Wait for all the threads to finish
