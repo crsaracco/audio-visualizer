@@ -12,7 +12,7 @@ The code is a little messy at the moment though...
 
 You'll probably want to build this in release mode.
 
-For now it only accepts `wav` inputs. You can also supply some graphing arguments: x/y offset, and x/y scale (in that order):
+For now it only accepts `wav` inputs. You can also supply some graphing arguments: y-axis offset, and y-axis scale (in that order):
 
 ```
 cargo run --release -- <wav file> 0.0 0.2
