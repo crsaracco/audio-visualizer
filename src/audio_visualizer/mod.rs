@@ -14,7 +14,7 @@ use piston::input::{RenderEvent, UpdateEvent};
 
 use chan;
 
-const WINDOW_SIZE: [u32; 2] = [(1920.0) as u32, (1080.0) as u32];
+const WINDOW_SIZE: [u32; 2] = [(1280.0) as u32, (720.0) as u32];
 const BUFFER_MULTIPLIER: usize = 2;
 const BUFFER_SIZE: usize = (WINDOW_SIZE[0] as usize)*BUFFER_MULTIPLIER;
 const SAMPLES_PER_FRAME: usize = (44100.0/60.0*1.2) as usize;
@@ -32,7 +32,7 @@ pub fn audio_visualizer(recv_graph_samples: chan::Receiver<(i16, i16)>, sub: f64
         .build()
         .unwrap();
 
-    // Create a new game and run it.
+    // Create a new graphics engine and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
         buffer: Vec::new(),
@@ -100,17 +100,9 @@ impl App {
 
                 self.draw_buffer[sample] = self.draw_buffer[sample] * 0.75 + y * 0.25;
 
-                /*
-                if y > self.draw_buffer[sample] {
-                    self.draw_buffer[sample] = y;
-                }
-                else {
-                    self.draw_buffer[sample] = self.draw_buffer[sample] * 0.5;
-                }
-                */
             }
 
-            // We can't borrow self in a closure that uses self (apparently), so we have to make
+            // We can't borrow self in a closure that uses self, so we have to make
             // a reference outside of the closure.
             let mut draw_buffer = &self.draw_buffer;
 
